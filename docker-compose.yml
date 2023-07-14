@@ -1,0 +1,16 @@
+services:
+  postgres:
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    image: postgres:14.4
+    networks:
+      - network_backend
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - ./tmp/db:/var/lib/postgresql/data
+
+networks:
+  network_backend:
+    driver: bridge
