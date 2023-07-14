@@ -3,9 +3,11 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :providers, only: [] do
-        resources :schedules, only: [:index, :create] do
-          post 'confirm'
-          post 'reserve'
+        resources :schedules, only: [:index, :create]
+
+        resources :appointments, only: [] do
+          post "confirm"
+          post "reserve"
         end
       end
     end
