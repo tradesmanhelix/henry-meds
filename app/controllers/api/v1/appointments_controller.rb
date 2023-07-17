@@ -20,6 +20,7 @@ class Api::V1::AppointmentsController < ApplicationController
     slot.reserved = true
     slot.reserved_at = Time.current
     slot.save!
+    slot.update!(editable: true)
 
     booking = ClientBooking.create(
       provider_time_slot: slot,
@@ -34,9 +35,49 @@ class Api::V1::AppointmentsController < ApplicationController
   end
 
   def confirm
+    booking = ClientBooking.find(booking_id)
+    client = Client.find(client_id)
+    provider = Provider.find(provider_id)
+    slot = ProviderTimeSlot.find(provider_time_slot_id)
+
+    if !slot.editable
+      render json: "Slot cannot be updated at this time", status: :locked and return
+    end
+
+    if slot.id != booking.provider_time_slot.id
+      render json: "Wrong booking for appointment", status: :bad_request and return
+    end
+
+    slot.update!(editable: false)
+
+    # More than 30 minutes have passed
+    if slot.reserved_at < 30.minutes.ago
+      slot.reserved = false
+      slot.reserved_at = nil
+      slot.save!
+      slot.update!(editable: true)
+
+      booking.update!(expired: true)
+
+      time_slot_validator.overlapping_for_slot(slot).find_each do |overlapping|
+        overlapping.update!(reserved: false)
+      end
+
+      render json: "Reservation expired", status: :gone and return
+    end
+
+    booking.confirmed = true
+    booking.confirmed_at = Time.current
+    booking.save!
+
+    render json: booking, status: :ok and return
   end
 
   private
+
+  def booking_id
+    params.require(:booking_id)&.to_i
+  end
 
   def client_id
     params.require(:client_id)&.to_i

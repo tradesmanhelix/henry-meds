@@ -31,7 +31,7 @@ RSpec.describe "Api::V1::Appointments", type: :request do
       )
     end
 
-    it "Reserves an appointments" do
+    it "Reserves an appointment" do
       json_params = {
         client_id: client.id,
       }
@@ -49,5 +49,30 @@ RSpec.describe "Api::V1::Appointments", type: :request do
   end
 
   describe "api_v1_provider_appointment#confirm" do
+    let(:slot) do
+      create(
+        :provider_time_slot,
+        provider: provider,
+        start_at: DateTime.current.next_day.change({hour: hour, min: 0}).utc,
+        end_at: DateTime.current.next_day.change({hour: hour, min: 15}).utc,
+        reserved: true,
+        reserved_at: Time.current.utc,
+      )
+    end
+
+    let(:booking) { create(:client_booking, provider_time_slot: slot, client: client) }
+
+    it "Confirms an appointment" do
+      json_params = {
+        booking_id: booking.id,
+        client_id: client.id,
+      }
+
+      post api_v1_provider_appointment_confirm_path(provider_id: provider.id, appointment_id: slot.id), params: json_params
+
+      expect(response).to have_http_status(:ok)
+      expect(booking.reload.confirmed).to be true
+      expect(booking.reload.confirmed_at).not_to be nil
+    end
   end
 end
