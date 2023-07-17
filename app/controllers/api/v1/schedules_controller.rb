@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Api::V1::SchedulesController < ApplicationController
   def index
     slots = ProviderTimeSlot.where(
@@ -10,11 +12,35 @@ class Api::V1::SchedulesController < ApplicationController
   end
 
   def create
+    provider = Provider.find(provider_id)
+
+    if !time_slot_validator.is_valid?(start_at, end_at)
+      render plain: time_slot_validator.error, status: :bad_request and return
+    end
+
+    provider_time_slot_factory.make_slots(start_at, end_at, provider)
+    render plain: "Appointment slots created", status: :ok and return
   end
 
   private
 
   def provider_id
     params.require(:provider_id)&.to_i
+  end
+
+  def start_at
+    params.require(:start_at)
+  end
+
+  def end_at
+    params.require(:end_at)
+  end
+
+  def time_slot_validator
+    @time_slot_validator ||= TimeSlotValidator.new
+  end
+
+  def provider_time_slot_factory
+    @provider_time_slot_factory ||= ProviderTimeSlotFactory.new
   end
 end
