@@ -154,3 +154,17 @@ Database Outline:
     confirmed=false
     confirmed_at=nil
 ```
+
+## Things to Note
+
+- The tests are a bit lighter than I would like; this is a function of...
+
+- This challenge took > 2 hours.
+
+- You can see the state of my work at the 2 hour mark by searching the git commit history for `2-Hour Mark Commit`.
+
+- There were some tradeoffs made due to time, specifically:
+    - The appointments controller is too fat. I'd move a lot of this logic into services.
+    - Things could be cleaner; the `TimeSlotValidator` class is not as single-purpose as I would like.
+    - Once again, this needs more tests. Basic functionality is operational, but I'm quite sure there are bugs around
+      edge cases.
