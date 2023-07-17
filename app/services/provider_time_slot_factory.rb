@@ -2,6 +2,7 @@
 
 class ProviderTimeSlotFactory
   def make_slots(start_at, end_at, provider)
+    new_slots = []
     slot_start = start_at.to_datetime
     slot_end = end_at.to_datetime
 
@@ -15,10 +16,14 @@ class ProviderTimeSlotFactory
           end_at: new_slot_start + 15.minutes,
           provider: provider,
         )
+
+        new_slots << new_slot
       end
 
       # Increment start_time by 5 mins
       new_slot_start += 5.minutes
     end
+
+    return new_slots
   end
 end

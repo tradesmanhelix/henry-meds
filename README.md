@@ -81,7 +81,7 @@ Base Namespace:
 /api/v1/providers/{id}/appointments/{id}/reserve
   - POST: Reserve a slot:
     - Params:
-      - slot_id
+      - appointment_id
       - client_id
     - Requirements:
       - Validate:

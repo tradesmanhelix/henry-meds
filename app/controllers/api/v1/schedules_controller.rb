@@ -14,12 +14,13 @@ class Api::V1::SchedulesController < ApplicationController
   def create
     provider = Provider.find(provider_id)
 
-    if !time_slot_validator.is_valid?(start_at, end_at)
-      render plain: time_slot_validator.error, status: :bad_request and return
+    if !time_slot_validator.is_valid?(start_at, end_at, provider)
+      render json: time_slot_validator.error, status: :bad_request and return
     end
 
-    provider_time_slot_factory.make_slots(start_at, end_at, provider)
-    render plain: "Appointment slots created", status: :ok and return
+    slots = provider_time_slot_factory.make_slots(start_at, end_at, provider)
+
+    render json: slots, status: :ok and return
   end
 
   private

@@ -5,7 +5,7 @@ class TimeSlotValidator
 
   attr_reader :error
 
-  def is_valid?(start_at, end_at)
+  def is_valid?(start_at, end_at, provider)
     slot_start = start_at.to_datetime
     slot_end = end_at.to_datetime
 
@@ -21,14 +21,23 @@ class TimeSlotValidator
     end
 
     # Does not overlap existing provider_time_slots start or end times
-    overlapping_slots = ProviderTimeSlot.where("start_at <= ? AND ? <= end_at", slot_end, slot_start)
-
-    if overlapping_slots.count.positive?
+    if overlapping_for_range(start_at, end_at, provider).count.positive?
       @error = "Overlaps existing"
       return false
     end
 
     return true
+  end
+
+  def overlapping_for_range(start_at, end_at, provider)
+    slot_start = start_at.to_datetime
+    slot_end = end_at.to_datetime
+
+    ProviderTimeSlot.where(provider: provider).where("start_at < ? AND ? < end_at", slot_end, slot_start)
+  end
+
+  def overlapping_for_slot(slot)
+    overlapping_for_range(slot.start_at, slot.end_at, slot.provider).where.not(id: slot.id)
   end
 
   private
