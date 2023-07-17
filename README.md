@@ -53,7 +53,8 @@ simplicity, the shipped code just does the checks in real time.
 ```
 Definitions
 
-**unusable_slots: Any slot whose start or end time is in the non-inclusive time interval of a reserved slot
+**unusable_slots: Any slot whose start or end time is in the non-inclusive time interval
+of a reserved slot.
 
 Base Namespace:
 /api/v1/
